@@ -24,16 +24,16 @@ def coordinate_to_element(x,y):
 # for x in range(-100,101):
 #     pixel_list[coordinate_to_element(x,x)] = (0,0,0)
 
-# This tries to make a circle half --does not work (seems to be some sort of sqrt funciton)
-# radius = 100
-# for x in range(-100,101):
-#     radicand = (radius^2) - (x^2)
-#     if radicand >=0:
-#         y = math.sqrt(radicand)
-#         y_closest = round(y)
+# This makes a circle  
+radius = 100
+for x in range(-100,101):
+    radicand = (radius**2) - (x**2)
+    if radicand >=0:
+        y = math.sqrt(radicand)
+        y_closest = round(y)
         
-#         pixel_list[coordinate_to_element(x,y_closest)] = (0,0,0)
-#         pixel_list[coordinate_to_element(x,-1*y_closest)] = (0,0,0) # (this sideways parabola definitely shows that it's doing a sqrt function and not circle as intended)
+        pixel_list[coordinate_to_element(x,y_closest)] = (0,0,0)
+        pixel_list[coordinate_to_element(x,-1*y_closest)] = (0,0,0) # (this sideways parabola definitely shows that it's doing a sqrt function and not circle as intended)
 
 #drawing those coordinates and saving the frame
 output = Image.new(mode="RGB", size=size)
