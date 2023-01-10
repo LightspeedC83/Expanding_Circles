@@ -2,6 +2,7 @@ from PIL import Image
 import math
 import moviepy.editor as me
 import os
+import random
 
 
 frame_output_folder = "output_frames"
@@ -35,26 +36,51 @@ def coordinate_to_element(x,y):
 
     return (x + horizontal_offset) + ((vertical_offset - y) *  size[1]) 
 
+# creating a circle class
+class Circle:
+    """is a circle with center at point (h,k) and a radius of radius. The resolution is default at 10 which means for each circle it draws, it finds the coordinates at 360*10 angles """
+    def __init__(self, h, k, radius, resolution=10):
+        self.h = round(h)
+        self.k = round(k)
+        self.radius = radius
+        self.resolution = resolution # todo: there is probably a smart way of figuring out what the resolution needs to be based on the radius
+    
+    def graph_circle(self):
+        """graphs the circle with the parameters given at its creation""" 
+        for theta in range(0,(360*self.resolution)):
+            x = round(self.radius*math.cos(math.pi*theta/(180*self.resolution)))
+            y = round(self.radius*math.sin(math.pi*theta/(180*self.resolution)))
+            pixel_list[coordinate_to_element(x+self.h, y+self.k)] = (0,0,0)
 
+num_circles = 25
+for x in range(0, num_circles):
+    test = Circle(h=random.randint(-250,250), k=random.randint(-250,250), radius=100)
+    test.graph_circle()
 
-# drawing an expanding circle by going through each angle
-radius = 0
-for frame in range(0, 100):
-    radius += 1
-    for theta in range(0,3600):
-        x = round(radius*math.cos(math.pi*theta/1800))
-        y = round(radius*math.sin(math.pi*theta/1800))
-        pixel_list[coordinate_to_element(x,y)] = (0,0,0)
+output = Image.new(mode="RGB", size=size)
 
-    output = Image.new(mode="RGB", size=size)
+output.putdata(pixel_list)
 
-    output.putdata(pixel_list)
+output.show()
 
-    output.save(f"{frame_output_folder}/frame{frame}.jpg")
-    clear_pixel_list()
+# # drawing an expanding circle by going through each angle
+# radius = 0
+# for frame in range(0, 100):
+#     radius += 1
+#     for theta in range(0,3600):
+#         x = round(radius*math.cos(math.pi*theta/1800))
+#         y = round(radius*math.sin(math.pi*theta/1800))
+#         pixel_list[coordinate_to_element(x,y)] = (0,0,0)
 
-# saving all the frames as a video
-frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
+#     output = Image.new(mode="RGB", size=size)
 
-output_clip = me.ImageSequenceClip(frames, fps=24)
-output_clip.write_videofile("ouput_animation.mp4", fps=24)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit
+#     output.putdata(pixel_list)
+
+#     output.save(f"{frame_output_folder}/frame{frame}.jpg")
+#     clear_pixel_list()
+
+# # saving all the frames as a video
+# frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
+
+# output_clip = me.ImageSequenceClip(frames, fps=24)
+# output_clip.write_videofile("ouput_animation.mp4", fps=24)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit
