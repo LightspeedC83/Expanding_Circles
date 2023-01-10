@@ -35,28 +35,23 @@ def coordinate_to_element(x,y):
 
     return (x + horizontal_offset) + ((vertical_offset - y) *  size[1]) 
 
-# This makes a circle that expands
-images = [] 
+
+
+# drawing an expanding circle by going through each angle
 radius = 0
 for frame in range(0, 100):
-    radius +=1
-    for x in range(-100,101):
-        radicand = (radius**2) - (x**2)
-        if radicand >=0:
-            y = math.sqrt(radicand)
-            y_closest = round(y)
-            
-            pixel_list[coordinate_to_element(x,y_closest)] = (0,0,0)
-            pixel_list[coordinate_to_element(x,-1*y_closest)] = (0,0,0) 
+    radius += 1
+    for theta in range(0,3600):
+        x = round(radius*math.cos(math.pi*theta/1800))
+        y = round(radius*math.sin(math.pi*theta/1800))
+        pixel_list[coordinate_to_element(x,y)] = (0,0,0)
 
-    #drawing those coordinates to the image and saving the frame
     output = Image.new(mode="RGB", size=size)
 
     output.putdata(pixel_list)
 
     output.save(f"{frame_output_folder}/frame{frame}.jpg")
-
-    # clear_pixel_list()
+    clear_pixel_list()
 
 # saving all the frames as a video
 frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
