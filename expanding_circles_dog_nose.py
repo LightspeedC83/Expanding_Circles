@@ -43,44 +43,76 @@ class Circle:
         self.h = round(h)
         self.k = round(k)
         self.radius = radius
+        self.point_list = []
+        
+        # finding resolution of circle
         if radius < 50:
             self.resolution = 10
         else:
             self.resolution = radius//3 # todo: there is probably a smart way of figuring out what the resolution needs to be based on the radius
-    
+
+    def update_point_list(self):
+        self.point_list = []
+        # getting a list of points that fall on the circle
+        for theta in range(0,(360*self.resolution)):  #isn't updating circle position b/c it only runs this code on initialization
+            x = self.h + round(self.radius*math.cos(math.pi*theta/(180*self.resolution)))
+            y = self.k + round(self.radius*math.sin(math.pi*theta/(180*self.resolution)))
+            self.point_list.append((x,y))
+        
     def graph_circle(self):
         """graphs the circle with the parameters given at its creation""" 
-        for theta in range(0,(360*self.resolution)):
-            x = round(self.radius*math.cos(math.pi*theta/(180*self.resolution)))
-            y = round(self.radius*math.sin(math.pi*theta/(180*self.resolution)))
+        for point in self.point_list:
             try:
-                pixel_list[coordinate_to_element(x+self.h, y+self.k)] = (0,0,0)
+                pixel_list[coordinate_to_element(point[0], point[1])] = (0,0,0) #graphs the point on the plane
+                
             except IndexError:
                 print("tried to graph a point not on the plane")
                 # raise IndexError("tried to graph a point not on the plane") # may not have 
 
-num_circles = 25
-radius = 1
+num_circles = 5
+radius = 50
 circles = []
 for x in range(0, num_circles):
     circles.append(Circle(h=random.randint(-250,250), k=random.randint(-250,250), radius=radius))
 
-for frame in range(0,100):
+circle_touching = False
+for frame in range(0,150):
     clear_pixel_list()
     radius += 1
+
     for c in circles:
         c.radius = radius
-        c.graph_circle()
+        c.update_point_list()
 
+        # checking whether or not the circles collide
+        for other in circles:
+            if circle_touching:
+                break
+
+            if not other is c:
+                # for every circle, this part of the program loops over every other circle
+                for point in c.point_list:
+                    if circle_touching:
+                        break
+                    
+                    for other_point in other.point_list:
+                        if other_point[0] == point[0] and other_point[1] == point[1]: #this means the circles are touching
+                            circle_touching = True
+                            break
+
+        c.graph_circle()
 
     output = Image.new(mode="RGB", size=size)
 
     output.putdata(pixel_list)
 
-    output.save(f"{frame_output_folder}/frame{frame}.jpg")
+    output.save(f"{frame_output_folder}/{frame}-frame.jpg")
+
+    if circle_touching:
+        break
 
 # saving all the frames as a video
 frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
 
 output_clip = me.ImageSequenceClip(frames, fps=24)
-output_clip.write_videofile("ouput_animation.mp4", fps=24)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit
+output_clip.write_videofile("ouput_animation.mp4", fps=24)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit (it wasn't --still idk what is goin on)

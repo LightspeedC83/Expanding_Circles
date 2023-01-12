@@ -10,5 +10,7 @@ I may also mess around with having them expand at random rates.
 - find way of finding the resolution of a circle based on the radius --done (but not sure if done well)
 - update graphing system so that it doesn't try to graph points on the plane
 - graph multiple circles expanding from random points --done
+- fix the animation glitching (it's not the order of the frames in the list)
 - figure out circle collisions
+    - lines 87-101 do detect if circles are colliding, it is just incredibly inefficient
 - mess with rate of expansion
