@@ -12,7 +12,7 @@ for file in os.listdir(frame_output_folder):
     os.remove(file)
 
 
-size = (1001,1001) #setting the size for the image to be created
+size = (1001, 1001) #setting the size for the image to be created
 pixel_list = []
 
 def clear_pixel_list():
@@ -29,7 +29,7 @@ clear_pixel_list() #creating an initial blank image
 horizontal_offset = size[0]//2 #for if (0,0) was at the top left
 vertical_offset = size[1]//2
 
-def coordinate_to_element(x,y):
+def coordinate_to_element(x,y): # will need to come back and adjust this to not graph a point that's not on the plane
     """Takes a coordinate on the coordiante plane (within the specified size for the image)
     and outputs the element in the list of pixels in the image that said coordinate pair corresponds to
     (ie. it takes ordered pair and converts it to a pixel on the image)"""
@@ -38,49 +38,49 @@ def coordinate_to_element(x,y):
 
 # creating a circle class
 class Circle:
-    """is a circle with center at point (h,k) and a radius of radius. The resolution is default at 10 which means for each circle it draws, it finds the coordinates at 360*10 angles """
-    def __init__(self, h, k, radius, resolution=10):
+    """is a circle with center at point (h,k) and a radius of radius."""
+    def __init__(self, h, k, radius):
         self.h = round(h)
         self.k = round(k)
         self.radius = radius
-        self.resolution = resolution # todo: there is probably a smart way of figuring out what the resolution needs to be based on the radius
+        if radius < 50:
+            self.resolution = 10
+        else:
+            self.resolution = radius//3 # todo: there is probably a smart way of figuring out what the resolution needs to be based on the radius
     
     def graph_circle(self):
         """graphs the circle with the parameters given at its creation""" 
         for theta in range(0,(360*self.resolution)):
             x = round(self.radius*math.cos(math.pi*theta/(180*self.resolution)))
             y = round(self.radius*math.sin(math.pi*theta/(180*self.resolution)))
-            pixel_list[coordinate_to_element(x+self.h, y+self.k)] = (0,0,0)
+            try:
+                pixel_list[coordinate_to_element(x+self.h, y+self.k)] = (0,0,0)
+            except IndexError:
+                print("tried to graph a point not on the plane")
+                # raise IndexError("tried to graph a point not on the plane") # may not have 
 
 num_circles = 25
+radius = 1
+circles = []
 for x in range(0, num_circles):
-    test = Circle(h=random.randint(-250,250), k=random.randint(-250,250), radius=100)
-    test.graph_circle()
+    circles.append(Circle(h=random.randint(-250,250), k=random.randint(-250,250), radius=radius))
 
-output = Image.new(mode="RGB", size=size)
+for frame in range(0,100):
+    clear_pixel_list()
+    radius += 1
+    for c in circles:
+        c.radius = radius
+        c.graph_circle()
 
-output.putdata(pixel_list)
 
-output.show()
+    output = Image.new(mode="RGB", size=size)
 
-# # drawing an expanding circle by going through each angle
-# radius = 0
-# for frame in range(0, 100):
-#     radius += 1
-#     for theta in range(0,3600):
-#         x = round(radius*math.cos(math.pi*theta/1800))
-#         y = round(radius*math.sin(math.pi*theta/1800))
-#         pixel_list[coordinate_to_element(x,y)] = (0,0,0)
+    output.putdata(pixel_list)
 
-#     output = Image.new(mode="RGB", size=size)
+    output.save(f"{frame_output_folder}/frame{frame}.jpg")
 
-#     output.putdata(pixel_list)
+# saving all the frames as a video
+frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
 
-#     output.save(f"{frame_output_folder}/frame{frame}.jpg")
-#     clear_pixel_list()
-
-# # saving all the frames as a video
-# frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
-
-# output_clip = me.ImageSequenceClip(frames, fps=24)
-# output_clip.write_videofile("ouput_animation.mp4", fps=24)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit
+output_clip = me.ImageSequenceClip(frames, fps=24)
+output_clip.write_videofile("ouput_animation.mp4", fps=24)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit
