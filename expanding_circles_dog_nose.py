@@ -88,13 +88,17 @@ for frame in range(0,150):
         for other in circles:
             if circle_touching:
                 break
-
+            
             if not other is c:
                 # for every circle, this part of the program loops over every other circle
+
+                if (c.radius + other.radius) < math.sqrt((c.h - other.h)**2 + (c.k - other.k)**2): #if the distance between the circles is greater than their radii, then it won't bother checking points 
+                    continue
+
                 for point in c.point_list:
                     if circle_touching:
                         break
-                    
+
                     for other_point in other.point_list:
                         if other_point[0] == point[0] and other_point[1] == point[1]: #this means the circles are touching
                             circle_touching = True
