@@ -75,10 +75,11 @@ circles = []
 for x in range(0, num_circles):
     circles.append(Circle(h=random.randint(-250,250), k=random.randint(-250,250), radius=radius))
 
-circle_touching = False
-for frame in range(0,150):
+for frame in range(0,1):
     clear_pixel_list()
     radius += 1
+
+    intersection_points = []
 
     for c in circles:
         c.radius = radius
@@ -86,34 +87,46 @@ for frame in range(0,150):
 
         # checking whether or not the circles collide
         for other in circles:
-            if circle_touching:
-                break
             
             if not other is c:
                 # for every circle, this part of the program loops over every other circle
 
-                if (c.radius + other.radius) < math.sqrt((c.h - other.h)**2 + (c.k - other.k)**2): #if the distance between the circles is greater than their radii, then it won't bother checking points 
-                    continue
+                distance_between = math.sqrt((c.h - other.h)**2 + (c.k - other.k)**2)
+                if (c.radius + other.radius) >= distance_between: #if the distance between the circles is less than or equal to the sum of their radii, then we know there must be some intersecting points --doesn't work quite yet
+                    
+                    # gets the angle between the point and the line between the circles' two centers, assuming that they are level (ie. same y value) and circle c is at the origin --using law of cosines
+                    theta = math.acos(((other.radius**2)-(c.radius**2)-(distance_between**2))/(2*c.radius*distance_between))
 
-                for point in c.point_list:
-                    if circle_touching:
-                        break
+                    # gets the points (x,y) where the circles intersect 
+                    upper_intersection = (c.radius*math.cos(theta),c.radius*math.sin(theta))
+                    lower_intersection = (upper_intersection[0], -1*upper_intersection[1])
 
-                    for other_point in other.point_list:
-                        if other_point[0] == point[0] and other_point[1] == point[1]: #this means the circles are touching
-                            circle_touching = True
-                            break
+                    # getting the amount the the line between the two centerpoints is rotated from the x-axis
+                    phi = math.atan((other.k-c.k)/(other.h-c.h))
+
+                    # rotating our two intersection points by phi and translating them by the circle center offset yielding our upper and lower intersection points
+                    y_upper = round(upper_intersection[1]*math.cos(phi) + upper_intersection[0]*math.sin(phi) + c.k)
+                    x_upper = round(upper_intersection[0]*math.cos(phi) - upper_intersection[1]*math.sin(phi) + c.h)
+
+                    x_lower = round(lower_intersection[0]*math.cos(phi) - lower_intersection[1]*math.sin(phi) + c.h)
+                    y_lower = round(lower_intersection[1]*math.cos(phi) + lower_intersection[0]*math.sin(phi) + c.k)
+
+                    # adding the intersection points to our list of intersection points for this frame
+                    intersection_points.append((x_upper, y_upper))
+                    intersection_points.append((x_lower, y_lower))
 
         c.graph_circle()
+
+
+    #coloring in all the intersection points
+    for point in intersection_points:
+        pixel_list[coordinate_to_element(point[0],point[1])] = (0,0,255)
 
     output = Image.new(mode="RGB", size=size)
 
     output.putdata(pixel_list)
 
     output.save(f"{frame_output_folder}/{frame}-frame.jpg")
-
-    if circle_touching:
-        break
 
 # saving all the frames as a video
 frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
