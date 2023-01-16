@@ -96,37 +96,42 @@ for frame in range(0,1):
                     
                     # gets the angle between the point and the line between the circles' two centers, assuming that they are level (ie. same y value) and circle c is at the origin --using law of cosines
                     theta = math.acos(((other.radius**2)-(c.radius**2)-(distance_between**2))/(2*c.radius*distance_between))
-
-                    # gets the points (x,y) where the circles intersect 
-                    upper_intersection = (c.radius*math.cos(theta),c.radius*math.sin(theta))
-                    lower_intersection = (upper_intersection[0], -1*upper_intersection[1])
-
+                     
                     # getting the amount the the line between the two centerpoints is rotated from the x-axis
                     phi = math.atan((other.k-c.k)/(other.h-c.h))
 
-                    # rotating our two intersection points by phi and translating them by the circle center offset yielding our upper and lower intersection points
-                    y_upper = round(upper_intersection[1]*math.cos(phi) + upper_intersection[0]*math.sin(phi) + c.k)
-                    x_upper = round(upper_intersection[0]*math.cos(phi) - upper_intersection[1]*math.sin(phi) + c.h)
+                    # gets the points (x,y) where the circles intersect 
+                    upper_intersection = (round(c.radius*math.cos(theta + phi)) + c.h ,round(c.radius*math.sin(theta + phi)) + c.k)
+                    lower_intersection = (round(c.radius*math.cos(phi-theta)) + c.h ,round(c.radius*math.sin(phi-theta)) + c.k)
 
-                    x_lower = round(lower_intersection[0]*math.cos(phi) - lower_intersection[1]*math.sin(phi) + c.h)
-                    y_lower = round(lower_intersection[1]*math.cos(phi) + lower_intersection[0]*math.sin(phi) + c.k)
+                    # print(upper_intersection, lower_intersection)
+                    intersection_points.append(upper_intersection)
+                    intersection_points.append(lower_intersection)
 
-                    # adding the intersection points to our list of intersection points for this frame
-                    intersection_points.append((x_upper, y_upper))
-                    intersection_points.append((x_lower, y_lower))
 
         c.graph_circle()
 
-
-    #coloring in all the intersection points
-    for point in intersection_points:
-        pixel_list[coordinate_to_element(point[0],point[1])] = (0,0,255)
 
     output = Image.new(mode="RGB", size=size)
 
     output.putdata(pixel_list)
 
     output.save(f"{frame_output_folder}/{frame}-frame.jpg")
+
+
+    # coloring in all the intersection points and marking each one with a small circle 
+    for point in intersection_points:
+        print(point)
+        pixel_list[coordinate_to_element(point[0],point[1])] = (255,0,0)
+        m = Circle(h=point[0], k=point[1], radius=5)
+        m.update_point_list()
+        m.graph_circle()
+
+    output = Image.new(mode="RGB", size=size)
+
+    output.putdata(pixel_list)
+
+    output.save(f"{frame_output_folder}/{frame}-frame colored.jpg")   
 
 # saving all the frames as a video
 frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
