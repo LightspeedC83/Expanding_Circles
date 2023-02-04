@@ -34,7 +34,10 @@ def coordinate_to_element(x,y): # will need to come back and adjust this to not 
     and outputs the element in the list of pixels in the image that said coordinate pair corresponds to
     (ie. it takes ordered pair and converts it to a pixel on the image)"""
 
-    return (x + horizontal_offset) + ((vertical_offset - y) *  size[1])
+    if abs(x) <= horizontal_offset and abs(y) <= vertical_offset:
+        return (x + horizontal_offset) + ((vertical_offset - y) *  size[1])
+    else:
+        return(None)
 
 def find_angle(y,x): 
     """This function will return an angle given the x and y distances
@@ -43,8 +46,12 @@ def find_angle(y,x):
 
     if x > 0: #for if the angle is on the right half of the unit circle
         return(math.atan(y/x))
-    else: #for if the angle is on the left half of the unit circle
+    elif x < 0: #for if the angle is on the left half of the unit circle
         return(math.atan(y/x) + math.pi)
+    elif y > 0:
+        return(math.pi/2)
+    else:
+        return(-math.pi/2)
 
 # creating a circle class
 class Circle:
@@ -72,22 +79,21 @@ class Circle:
     def graph_circle(self):
         """graphs the circle with the parameters given at its creation""" 
         for point in self.point_list:
-            try:
-                pixel_list[coordinate_to_element(point[0], point[1])] = (0,0,0) #graphs the point on the plane
-                
-            except IndexError:
-                print("tried to graph a point not on the plane")
-                # raise IndexError("tried to graph a point not on the plane") # may not have 
+            point_element = coordinate_to_element(point[0], point[1])
+            if not point_element == None:
+                pixel_list[point_element] = (0,0,0) #graphs the point on the plane
 
 num_circles = 5
 radius = 100
 circles = []
 for x in range(0, num_circles):
-    circles.append(Circle(h=random.randint(-250,250), k=random.randint(-250,250), radius=radius))
+    start_zone_x = horizontal_offset - 2*radius
+    start_zone_y = vertical_offset - 2*radius
+    circles.append(Circle(h=random.randint(-start_zone_x, start_zone_x), k=random.randint(-start_zone_y, start_zone_y), radius=radius))
 
 for frame in range(0,10):
     clear_pixel_list()
-    radius += 5
+    radius += 10
 
     intersection_points = []
 
@@ -131,14 +137,9 @@ for frame in range(0,10):
 
     # coloring in all the intersection points and marking each one with a small circle 
     for point in intersection_points:
-        for circle in circles:
-            for other in circle.point_list:
-                if point == other:
-
-                    pixel_list[coordinate_to_element(point[0],point[1])] = (255,0,0)
-                    m = Circle(h=point[0], k=point[1], radius=5)
-                    m.update_point_list()
-                    m.graph_circle()
+        m = Circle(h=point[0], k=point[1], radius=5)
+        m.update_point_list()
+        m.graph_circle()
 
     output = Image.new(mode="RGB", size=size)
 
