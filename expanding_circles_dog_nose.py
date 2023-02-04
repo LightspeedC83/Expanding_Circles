@@ -34,7 +34,17 @@ def coordinate_to_element(x,y): # will need to come back and adjust this to not 
     and outputs the element in the list of pixels in the image that said coordinate pair corresponds to
     (ie. it takes ordered pair and converts it to a pixel on the image)"""
 
-    return (x + horizontal_offset) + ((vertical_offset - y) *  size[1]) 
+    return (x + horizontal_offset) + ((vertical_offset - y) *  size[1])
+
+def find_angle(y,x): 
+    """This function will return an angle given the x and y distances
+    (ie. the two components of the vector or the opposite and adjacent sides of a right triangle). 
+    It is important to note that the function uses arctan so its input is in (y,x) not (x,y) form"""
+
+    if x > 0: #for if the angle is on the right half of the unit circle
+        return(math.atan(y/x))
+    else: #for if the angle is on the left half of the unit circle
+        return(math.atan(y/x) + math.pi)
 
 # creating a circle class
 class Circle:
@@ -70,14 +80,14 @@ class Circle:
                 # raise IndexError("tried to graph a point not on the plane") # may not have 
 
 num_circles = 5
-radius = 50
+radius = 100
 circles = []
 for x in range(0, num_circles):
     circles.append(Circle(h=random.randint(-250,250), k=random.randint(-250,250), radius=radius))
 
-for frame in range(0,1):
+for frame in range(0,10):
     clear_pixel_list()
-    radius += 1
+    radius += 5
 
     intersection_points = []
 
@@ -95,10 +105,10 @@ for frame in range(0,1):
                 if (c.radius + other.radius) >= distance_between: #if the distance between the circles is less than or equal to the sum of their radii, then we know there must be some intersecting points --doesn't work quite yet
                     
                     # gets the angle between the point and the line between the circles' two centers, assuming that they are level (ie. same y value) and circle c is at the origin --using law of cosines
-                    theta = math.acos(((other.radius**2)-(c.radius**2)-(distance_between**2))/(2*c.radius*distance_between))
+                    theta = math.acos(((other.radius**2)-(c.radius**2)-(distance_between**2))/(-2*c.radius*distance_between))
                      
                     # getting the amount the the line between the two centerpoints is rotated from the x-axis
-                    phi = math.atan((other.k-c.k)/(other.h-c.h))
+                    phi = find_angle((other.k-c.k),(other.h-c.h))
 
                     # gets the points (x,y) where the circles intersect 
                     upper_intersection = (round(c.radius*math.cos(theta + phi)) + c.h ,round(c.radius*math.sin(theta + phi)) + c.k)
@@ -121,20 +131,23 @@ for frame in range(0,1):
 
     # coloring in all the intersection points and marking each one with a small circle 
     for point in intersection_points:
-        print(point)
-        pixel_list[coordinate_to_element(point[0],point[1])] = (255,0,0)
-        m = Circle(h=point[0], k=point[1], radius=5)
-        m.update_point_list()
-        m.graph_circle()
+        for circle in circles:
+            for other in circle.point_list:
+                if point == other:
+
+                    pixel_list[coordinate_to_element(point[0],point[1])] = (255,0,0)
+                    m = Circle(h=point[0], k=point[1], radius=5)
+                    m.update_point_list()
+                    m.graph_circle()
 
     output = Image.new(mode="RGB", size=size)
 
     output.putdata(pixel_list)
 
-    output.save(f"{frame_output_folder}/{frame}-frame colored.jpg")   
+    output.save(f"{frame_output_folder}/{frame}-frame marked intersection.jpg")   
 
 # saving all the frames as a video
 frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
 
-output_clip = me.ImageSequenceClip(frames, fps=24)
-output_clip.write_videofile("ouput_animation.mp4", fps=24)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit (it wasn't --still idk what is goin on)
+output_clip = me.ImageSequenceClip(frames, fps=1)
+output_clip.write_videofile("ouput_animation.mp4", fps=1)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit (it wasn't --still idk what is goin on)

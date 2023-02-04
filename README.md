@@ -6,11 +6,12 @@ If two circles collide, the parts that are touching will not expand and the part
 I may also mess around with having them expand at random rates. 
 
 # To Do:
-- implement drawing circles via a class system --done
-- find way of finding the resolution of a circle based on the radius --done (but not sure if done well)
-- update graphing system so that it doesn't try to graph points on the plane
-- graph multiple circles expanding from random points --done
+- DONE: implement drawing circles via a class system
+- DONE: find way of finding the resolution of a circle based on the radius --done (but not sure if done well)
+- update graphing system so that it doesn't try to graph points not on the plane
+- DONE: graph multiple circles expanding from random points
 - fix the animation glitching (it's not the order of the frames in the list)
-- figure out circle collisions
-    - lines 87-101 do detect if circles are colliding, it is just incredibly inefficient
+- DONE: figure out circle collision algorithm
+- DONE: fix the arctan thing --there was also one missed negative sign in getting theta via law of cosines
+- there is a problem with scalaing up the images generated --> gives a math domain error
 - mess with rate of expansion
