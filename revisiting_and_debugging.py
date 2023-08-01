@@ -12,7 +12,7 @@ for file in os.listdir(frame_output_folder):
     os.remove(file)
 
 
-size = (5, 5) #setting the size for the image to be created
+size = (10, 10) #setting the size for the image to be created
 pixel_list = []
 
 # function to clear the pixel list
