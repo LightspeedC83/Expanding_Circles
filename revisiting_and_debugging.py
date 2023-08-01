@@ -49,7 +49,7 @@ def save_image(file_directory):
     output.putdata(pixel_list)
 
     output.save(file_directory)
-
+        
 # function that finds an angle given opposite and adjacent side lengths
 def find_angle(y,x): 
     """This function will return an angle given the x and y distances
@@ -196,7 +196,7 @@ for x in range(-1*horizontal_offset+1, horizontal_offset):
         element = coordinate_to_element(x,y)
         if element != None:
             pixel_list[element] = (0,0,0)
-            save_image(f"{frame_output_folder}/{count}- {x,y}-test.jpg")
+            save_image(f"{frame_output_folder}/{count} - {x,y}-test.jpg")
         else:
             print(x,y)
 
@@ -205,9 +205,16 @@ for x in range(-1*horizontal_offset+1, horizontal_offset):
 # function that saves all the frames as a video
 def make_video():
     frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
-    frames.sort() # sorting the list by file name (each frame should begin with its number)
-    for x in frames:
-        print(x)
+    # frames.sort() # sorting the list by file name
+    # sorting the frames
+    for frame in frames:
+        index = int(frame.split()[0][frame.split()[0].index("/")+1:]) #getting the number at the beginning
+        current = frames.pop(frames.index(frame))
+        frames.insert(index, frame)
+
+    for frame in frames:
+        print(frame)
+
     output_clip = me.ImageSequenceClip(frames, fps=1)
     output_clip.write_videofile("ouput_animation.mp4", fps=1)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit (it wasn't --still idk what is goin on)
 

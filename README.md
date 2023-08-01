@@ -13,6 +13,8 @@ I may also mess around with having them expand at random rates.
 - DONE: figure out circle collision algorithm
 - DONE: fix the arctan thing --there was also one missed negative sign in getting theta via law of cosines
 - DONE: there is a problem with scalaing up the images generated --> gives a math domain error
+- find way to sort the frames into the correct order according to the leading number
+
 - algorithm still comes up with 2 points for every intersection, fix that
 - fix the animation glitching (it's not the order of the frames in the list)
 - mess with rate of expansion
