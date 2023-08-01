@@ -42,6 +42,7 @@ def coordinate_to_element(x,y):
         return(None)
 
 # function that saves the pixel_list as an image
+frame_count = 0
 def save_image(file_directory):
     """Saves an image formed from the pixel_list and saves it to a given directory"""
     output = Image.new(mode="RGB", size=size)
@@ -49,6 +50,8 @@ def save_image(file_directory):
     output.putdata(pixel_list)
 
     output.save(file_directory)
+    global frame_count #system to keep track of the total nubmer of frames
+    frame_count +=1
         
 # function that finds an angle given opposite and adjacent side lengths
 def find_angle(y,x): 
@@ -190,13 +193,14 @@ class Circle:
 
     # output.save(f"{frame_output_folder}/{frame}-frame marked intersection.jpg")   
 
+#checking the varacity of the coordinate to element function -- all seems to be good
 count = 0
-for x in range(-1*horizontal_offset+1, horizontal_offset):
-    for y in range(-1*vertical_offset+1, vertical_offset):
+for x in range(-1*horizontal_offset, horizontal_offset):
+    for y in range(-1*vertical_offset+1, vertical_offset+1):
         element = coordinate_to_element(x,y)
         if element != None:
             pixel_list[element] = (0,0,0)
-            save_image(f"{frame_output_folder}/{count} - {x,y}-test.jpg")
+            save_image(f"{frame_output_folder}/{count}.jpg")
         else:
             print(x,y)
 
@@ -204,18 +208,9 @@ for x in range(-1*horizontal_offset+1, horizontal_offset):
 
 # function that saves all the frames as a video
 def make_video():
-    frames = [frame_output_folder+"/"+f for f in os.listdir(frame_output_folder)] #getting a list of all the frame file paths
-    # frames.sort() # sorting the list by file name
-    # sorting the frames
-    for frame in frames:
-        index = int(frame.split()[0][frame.split()[0].index("/")+1:]) #getting the number at the beginning
-        current = frames.pop(frames.index(frame))
-        frames.insert(index, frame)
+    frames = [frame_output_folder+"/"+str(f)+".jpg" for f in range(frame_count)] #getting a list of all the frame file paths
 
-    for frame in frames:
-        print(frame)
-
-    output_clip = me.ImageSequenceClip(frames, fps=1)
-    output_clip.write_videofile("ouput_animation.mp4", fps=1)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit (it wasn't --still idk what is goin on)
+    output_clip = me.ImageSequenceClip(frames, fps=30)
+    output_clip.write_videofile("ouput_animation.mp4", fps=30)  # is producing video that is a bit spotty, I think duplicate frames or frames that are out of order in output_frames is the culprit (it wasn't --still idk what is goin on)
 
 make_video() #calling that function
